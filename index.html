@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <title>Firebase Chat</title>
+</head>
+<body>
+
+    <h1>Firebase Chatroom</h1>
+
+    <div id="before_login">
+        <form>
+            Username: <input type="text" id="username_textbox">
+            <button id="save">Save Username</button>
+        </form>
+    </div>
+    
+    <div id="after_login">
+        <div id="chatroom"></div>
+        <br><br>
+
+        <form>
+            <input type="text" id="user_chat">
+            <button id="submit">Submit Chat</button>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.13.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.0/firebase-firestore.memory.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.13.0/firebase-auth.js"></script>
+  
+    <script>
+      // ADD YOUR firebaseConfig HERE
+      const firebaseConfig = {
+        apiKey: "AIzaSyDjJdmYUUvdw-j1cfhN0NPaMTjhYzd9bqk",
+        authDomain: "fir-chatapp-1de70.firebaseapp.com",
+        databaseURL: "https://fir-chatapp-1de70.firebaseio.com",
+        projectId: "fir-chatapp-1de70",
+        storageBucket: "fir-chatapp-1de70.appspot.com",
+        messagingSenderId: "713577594372",
+        appId: "1:713577594372:web:f8d77550f556a685d5bf51",
+        measurementId: "G-WJ2NXW23TP"
+        };
+  
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+
+      //Intitalize a connection to the database
+      let db = firebase.firestore();
+      console.log("Success!");
+
+      //get references
+      let userInputTextbox = document.getElementById("user_chat");
+      let submitButtton = document.getElementById("submit");
+      let chatroomDiv = document.getElementById("chatroom");
+      let usernameTextbox = document.getElementById("username_textbox");
+      let saveButton = document.getElementById("save");
+      let beforeLoginDiv = document.getElementById("before_login");
+      let afterLoginDiv = document.getElementById("after_login");
+
+      //hide afterLoginDiv
+      afterLoginDiv.style.display = "none";
+
+      //declare a variable
+      let username;
+
+      //setup onclick for saveButton
+      saveButton.onclick = function() {
+          //prevent page from reloading
+          event.preventDefault();
+
+          //capture user input
+          username = usernameTextbox.value;
+          console.log(username);
+
+          //hide beforeLoginDiv and show afterLoginDiv
+          beforeLoginDiv.style.display = "none";
+          afterLoginDiv.style.display = "block";
+      }
+
+      //setup onclick for submitButton
+      submitButtton.onclick = function() {
+            //prevent page from reloading
+            event.preventDefault();
+
+            //get the UNIX timestamp
+            let now = new Date();
+            let timestamp = new Date().getTime();
+            console.log("Now: " + now)
+            console.log("Timestamp: " + timestamp);
+            
+            //save data to our database
+            db.collection("chatroom").add({
+                "username": username,
+                "chat": userInputTextbox.value,
+                "timestamp": timestamp
+            })
+
+            //clear userInputTextbox
+            userInputTextbox.value = "";
+
+      }
+
+      //every time the database updates, retrieve the data
+      db.collection("chatroom").orderBy("timestamp").onSnapshot(function(snapshot){
+          //clear the innerHTML of chatroomDiv
+          chatroomDiv.innerHTML = "";
+
+
+          //iterate through the database and add the info to chatroomDiv
+          for (let i = 0; i < snapshot.docs.length; i++){
+              //add username to chatroomDiv
+              chatroomDiv.innerHTML += snapshot.docs[i].data().username + ": ",
+
+              //add chat to chatroomDiv
+              chatroomDiv.innerHTML += snapshot.docs[i].data().chat + "<br>";
+          }
+      })
+
+    </script>
+
+</body>
+</html>

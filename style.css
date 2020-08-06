@@ -1,0 +1,13 @@
+#chatroom {
+    margin-top: 20px;
+    border: 3px solid black;
+    min-height: 400px;
+    padding: 20px;
+    font-size: 20px;
+    font-family: "courier new";
+}
+
+#user_chat {
+    width: 500px;
+}
+
